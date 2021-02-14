@@ -12,6 +12,122 @@ from setuptools.command.install import install
 
 NAME = "blockchain-learning"
 VERSION_REQUIREMENT = 3.7
+EDIT_MAP = []
+
+
+class Patch:
+
+    repos = []
+    repo = None
+
+    def __init__(self):
+        self.directory = os.path.join(os.getcwd(), '_dump/')
+        self.base = self.directory
+        if not os.path.exists(self.base):
+            os.mkdir(self.base)
+
+    def _iter(self, data):
+        if not self.trigger:
+            raise ValueError('something went wrong')
+        last_include = None
+        for index, line in enumerate(data):
+            if line.strip().startswith(self.trigger):
+                self.trigger = None
+                return data, index
+        raise ValueError('something went wrong')
+
+    def run(self):
+        self.add_repo()
+        self.clone()
+        self.execute_patches()
+
+    def clone(self):
+        print(self.repos)
+        for repo in self.repos:
+            subprocess.check_output(f'git clone {repo} {self.base}'.split(' '))
+
+    def execute_patches(self):
+        """Not Implemented"""
+
+    def patch(self, filename, callback):
+        data = self.read(filename).splitlines()
+        data = callback(data)
+        self.write(filename, '\n'.join(data))
+
+    def read(self, filename):
+        with open(filename, 'r') as file_:
+            data = file_.read()
+        return data
+    
+    def write(self, filename, data):
+        with open(filename, 'w+') as file_:
+            file_.write(data)
+    
+    def add_repo(self):
+        if self.repo:
+            self.repos += [self.repo]
+
+
+class Ethash(Patch):
+
+    repo = 'git@github.com:ethereum/ethash.git'
+
+    def __init__(self):
+        super().__init__()
+        self.base = self.base + 'ethash'
+        self.mmap_win32 = self.base + r'/src/libethash/mmap_win32.c'
+        self.python_core = self.base + r'/src/python/core.c'
+        self.trigger = None
+
+    def execute_patches(self):
+        self.patch(self.mmap_win32, self.patch_mmap_win32)
+        self.patch(self.python_core, self.patch_python_core)
+
+    def patch_mmap_win32(self, data):
+        self.trigger = '#include'
+        data, last_include = self._iter(data)
+        data.insert(last_include + 1, '#pragma comment(lib, "Shell32.lib")')
+        return data
+
+    def patch_python_core(self, data):
+        self.trigger = '#include <alloca.h>'
+        data, last_include = self._iter(data)
+        data[last_include] = '#if defined(_WIN32) || defined(WIN32)\n#include <malloc.h>\n#else\n#include <alloca.h>\n#endif'
+        return data
+
+class PyEVM(Patch):
+
+    repo = "git@github.com:ethereum/py-evm.git"
+
+    def __init__(self):
+        super().__init__()
+        print('tests')
+        self.base = self.base + 'py-evm/'
+        self.setup = self.base + r'setup.py'
+
+    def execute_patches(self):
+        self.patch(self.setup, self.patch_setup)
+    
+    def patch_setup(self, data):
+        self.trigger = '"pyethash'
+        data, last_include = self._iter(data)
+        data.pop(last_include)
+        return data
+
+class RequirementsTXT(Patch):
+
+    def __init__(self):
+        super().__init__()
+        self.base = os.path.join(os.getcwd(), "requirements.txt")
+
+    def execute_patches(self):
+        self.patch(self.base, self.add)
+    
+    def add(self, data):
+        eth = Ethash().run()
+        evm = PyEVM().run()
+        data += [eth.base, evm.base]
+        return data
 
 
 with open("requirements.txt", "r") as f:
@@ -26,13 +142,14 @@ class PreDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
         check_python_version()
-        develop.run(self)
+        super().run()
 
 
 class PreInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
         check_python_version()
+        RequirementsTXT().run()
         try:
             if self.is_tox_env:
                 with open("requirements.txt", "w") as reqs:
@@ -42,8 +159,6 @@ class PreInstallCommand(install):
 
             for file_ in ["requirements.txt", "test-requirements.txt"]:
                 cmd = [sys.executable] + "-m pip install -r {}".format(file_).split(" ")
-                cmd += ['&&']
-                cmd += [sys.executable] + '-m textblob.download_corpora'.split(' ')
                 with open("setup.log", "wb") as f:
                     process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
                     for line in iter(process.stdout.readline, b""):
@@ -53,8 +168,7 @@ class PreInstallCommand(install):
             if self.is_tox_env:
                 os.remove("requirements.txt")
                 os.remove("test-requirements.txt")
-
-        install.run(self)
+        super().run()
 
     @staticmethod
     @property
