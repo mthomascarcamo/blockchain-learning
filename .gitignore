@@ -12,4 +12,4 @@ testdata/
 .vscode
 vim.exe.stackdump
 .coverage
-_dump/
+.dump/
