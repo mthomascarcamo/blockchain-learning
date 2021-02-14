@@ -211,7 +211,8 @@ class LocalPatches:
         
         self.cmd("pip install".split(" ") + [repo.base for repo in init_repos])
 
-    def cmd(self, cmd):
+    @staticmethod
+    def cmd(cmd):
         if isinstance(cmd, str):
             cmd  = cmd.split(' ')
         with open("setup.log", "wb") as f:

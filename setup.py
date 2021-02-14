@@ -9,7 +9,7 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 
-NAME = "src"
+NAME = "blockchain_learning"
 VERSION_REQUIREMENT = 3.7
 
 
