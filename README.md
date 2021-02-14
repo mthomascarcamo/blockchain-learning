@@ -1,7 +1,16 @@
 # blockchain-learning
-This repo is a sandbox to leverage my python experience into learning blockchain development with Solidity
+This repo is a sandbox to leverage my python experience into learning blockchain development
 
-IDE: VS Code
+IDE: 
+* VS Code
+
+OS Platforms:
+* Windows
+
+Currencies:
+* Etherium
+* Algorand
+
 Extensions:
 * Solidity
 * Blockchain Development Kit for Ethereum (Microsoft)
@@ -11,24 +20,16 @@ Resources:
 Text:
 * https://ethereum.org/en/developers/docs/programming-languages/python/
 
-
 Video:
 https://www.youtube.com/watch?v=4bzPE9ydGlo << vs code extensions for solidiy
-
 
 Notes:
 * vyper does not strive to replace solidity
 * recommends testing with Brownie and pytest
-* Brownie installs eth-utils
+* looks like patch is needed to work on windows
 
-
-* Issue:
-** No version pragma in 'contracts/Storage.vy'
-# @version ^0.2.0
+Issue:
 * solve vyper extension issues like so: https://github.com/vyperlang/vyper/discussions/2248#discussioncomment-187742
-* py-evm install error - is actually error installing pyethash in windows
-** https://github.com/ethereum/pyethereum/issues/850
-** https://github.com/ethereum/ethash/issues/104#issue-269396285
 
 Open Questions:
 * Truffle, Infura, and OpenZeppelin.  << what are these?
