@@ -24,6 +24,7 @@ class PreDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
         check_python_version()
+        LocalPatches().run()
         super().run()
 
 
