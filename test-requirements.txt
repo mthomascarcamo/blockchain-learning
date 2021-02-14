@@ -1,2 +1,4 @@
 tox
 pytest
+tox
+pytest
