@@ -1,6 +1,9 @@
 # blockchain-learning
 This repo is a sandbox to leverage my python experience into learning blockchain development
 
+Setup"
+* run setup.bat from root directory
+
 IDE: 
 * VS Code
 
