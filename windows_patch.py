@@ -223,9 +223,26 @@ class PyEVM(Patch):
         data.pop(last_include)
         return data
 
+class AsyncioRunInProcess(Patch):
+
+    repo = "git@github.com:ethereum/asyncio-run-in-process.git"
+
+    def _init(self):
+        self.main = self.base + r'/asyncio_run_in_process/main.py'
+
+    def execute_patches(self):
+        self.patch(self.main, self.patch_relay_signals)
+    
+    def patch_relay_signals(self, data):
+        """signal.SIGHUP is linux only
+        REF: https://docs.python.org/3/library/signal.html#signal.SIGHUP"""
+
+        self.trigger = 'RELAY_SIGNALS = (signal.SIGTERM, signal.SIGHUP)'
+        data, last_include = self._iter(data)
+        data[last_include] = data[last_include].replace('signal.SIGHUP', 'signal.SIGINT')
+        return data   
 
 class Trinity(Patch):
-    """Failed to build plyvel pyethash python-snappy"""
 
     repo = "git@github.com:ethereum/trinity.git"
 
@@ -233,12 +250,52 @@ class Trinity(Patch):
         self.setup = self.base + r'/setup.py'
 
     def dependencies(self):
-        return [PyEVM()]
+        return [PyEVM(), AsyncioRunInProcess()]
 
     def execute_patches(self):
         self.patch(self.setup, self.patch_plyvel)
         self.patch(self.setup, self.patch_python_snappy)
         self.patch(self.setup, self.patch_ipython)
+        self.patch(self.setup, self.patch_async)
+        self.patch(self.base + r'/trinity/_utils/os.py', self.patch_resource)
+        self.patch(self.base + r'/trinity/_utils/xdg.py', self.patch_home_env_not_set)
+        self.patch(self.base + r'/trinity/_utils/socket.py', self.patch_socket)
+
+    def patch_socket(self, data):
+        """File "c:\\users\\public\\blockchain_learning_venv\\lib\\site-packages\\trinity\\_utils\\socket.py", line 109, in serve
+                with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+           AttributeError: module 'socket' has no attribute 'AF_UNIX'"""
+        self.trigger = "with socket.socket(socket.AF_UNIX"
+        data, last_include = self._iter(data)
+        data[last_include] = data[last_include].replace("socket.AF_UNIX", "socket.AF_INET")
+        return data
+
+    def patch_home_env_not_set(self, data):
+        """File "c:\\users\\public\\blockchain_learning_venv\\lib\\site-packages\\trinity\\_utils\\xdg.py", line 14, in get_home
+               raise AmbigiousFileSystem('$HOME environment variable not set')
+           trinity.exceptions.AmbigiousFileSystem: $HOME environment variable not set"""
+        self.trigger = "return Path(os.environ['HOME'])"
+        data, last_include = self._iter(data)
+        data[last_include] = data[last_include].replace(
+            "return Path(os.environ['HOME'])",
+            "return Path(os.getenv('HOMEDRIVE') + os.getenv('HOMEPATH'))"
+            )
+        return data
+
+    def patch_resource(self, data):
+        """resource lib is linux only. Luckily, we don't need the function it's used in
+        for the purpose of running trinity on windows
+        REF: https://docs.python.org/3.7/library/resource.html"""
+        self.trigger = 'import resource'
+        data, last_include = self._iter(data)
+        data[last_include] = 'from contextlib import suppress\nwith suppress(ModuleNotFoundError): ' + data[last_include]
+        return data   
+
+    def patch_async(self, data):
+        self.trigger = '"asyncio-run-in-process'
+        data, last_include = self._iter(data)
+        data.pop(last_include)
+        return data           
 
     def patch_ipython(self, data):
         self.trigger = '"ipython'
