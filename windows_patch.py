@@ -10,6 +10,16 @@ class Patch:
 
     repo = None
 
+    @staticmethod
+    def cmd(cmd):
+        if isinstance(cmd, str):
+            cmd  = cmd.split(' ')
+        with open("setup.log", "wb") as f:
+            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            for line in iter(process.stdout.readline, b""):
+                sys.stdout.write(line.decode("utf-8"))
+                f.write(line)
+
     def dependencies(self):
         """Not Implemented"""
         return []
@@ -53,6 +63,7 @@ class Patch:
         self.clone()
         self.execute_patches()
         EDIT_MAP.append(self.__class__.__name__)
+        self.cmd(f"pip install {self.base}")
 
     def _iter(self, data):
         if not self.trigger:
@@ -182,17 +193,40 @@ class EthBrownie(Patch):
         data.pop(last_include)
         return data
 
+class PyLevelDBWindows(Patch):
+    """plyvel/_plyvel.cpp(632): fatal error C1083: Cannot open include file: 'leveldb/db.h': No such file or directory
+    REF: https://github.com/wbolster/plyvel/issues/60
+    """
 
-class Trinity:
+    repo = "git@github.com:happynear/py-leveldb-windows.git"
+
+
+class Trinity(Patch):
     """Failed to build plyvel pyethash python-snappy"""
 
+    self.repo = "git@github.com:ethereum/trinity.git"
+
     def dependencies(self):
-        return [PyEVM()]
+        return [PyEVM(), PyLevelDBWindows()]
+    
+    def execute_patches(self):
+        self.patch_python_snappy()
+        self.patch_python_plyvel()
+
+    def patch_python_snappy(self):
+        """snappy/snappymodule.cc(32): fatal error C1083: Cannot open include file: 'snappy-c.h': No such file or directory"""
+        self.cmd('pip install python_snappy-0.6.0-cp37-cp37m-win_amd64.whl')
+
+    def patch_python_plyvel(self):
+        """tmp"""
 
 
-class LocalPatches:
+class LocalPatches(Patch):
 
-    repos = [PyEVM, EthBrownie]
+    repos = [PyEVM, EthBrownie, Trinity]
+
+    def __init__(self):
+        """Overwritten"""
 
     def run(self):
 
@@ -201,22 +235,6 @@ class LocalPatches:
         if os.name != 'nt':
             return
 
-        init_repos = []
         for repo in self.repos:
             repo_obj = repo()
-            init_repos.append(repo_obj)
-        
-        for repo_obj in init_repos:
             repo_obj.run()
-        
-        self.cmd("pip install".split(" ") + [repo.base for repo in init_repos])
-
-    @staticmethod
-    def cmd(cmd):
-        if isinstance(cmd, str):
-            cmd  = cmd.split(' ')
-        with open("setup.log", "wb") as f:
-            process = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            for line in iter(process.stdout.readline, b""):
-                sys.stdout.write(line.decode("utf-8"))
-                f.write(line)
