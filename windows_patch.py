@@ -152,7 +152,7 @@ class EthBrownie(Patch):
         self.trigger = 'prompt-toolkit'
         data, last_include = self._iter(data)
         data.pop(last_include)
-        data += ['prompt-toolkit']
+        data += ['prompt-toolkit==3.0.16']
         return data
 
     def patch_web3(self, data):
@@ -160,7 +160,7 @@ class EthBrownie(Patch):
         self.trigger = 'web3'
         data, last_include = self._iter(data)
         data.pop(last_include)
-        data += ['web3<6,>=5.12.1']
+        data += ['web3==5.16.0']
         return data
 
     def patch_pygments(self, data):
