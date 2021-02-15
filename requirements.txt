@@ -1,2 +1,2 @@
+tox
 vyper==0.2.8
-web3
