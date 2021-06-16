@@ -1,4 +1,1 @@
-tox
-pytest
-tox
 pytest

@@ -3,7 +3,6 @@
 import distutils.command.build_py as orig
 import os
 import sys
-from windows_patch import LocalPatches
 from setuptools import find_packages, setup
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -24,7 +23,6 @@ class PreDevelopCommand(develop):
     """Post-installation for development mode."""
     def run(self):
         check_python_version()
-        LocalPatches().run()
         super().run()
 
 
@@ -32,7 +30,6 @@ class PreInstallCommand(install):
     """Post-installation for installation mode."""
     def run(self):
         check_python_version()
-        LocalPatches().run()
         super().run()
 
 

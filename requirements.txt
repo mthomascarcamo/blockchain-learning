@@ -1,2 +1,3 @@
 tox
-vyper==0.2.8
+vyper
+eth-brownie

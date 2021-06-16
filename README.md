@@ -1,18 +1,11 @@
 # blockchain-learning
 This repo is a sandbox to leverage my python experience into learning blockchain development
 
-Setup"
-* run setup.bat from root directory
-
 IDE: 
 * VS Code
 
 OS Platforms:
 * Windows
-
-Currencies:
-* Etherium
-* Algorand
 
 Extensions:
 * Solidity
@@ -36,3 +29,6 @@ Issue:
 
 Open Questions:
 * Truffle, Infura, and OpenZeppelin.  << what are these?
+
+Dapps to check out:
+https://app.ribbon.finance/
