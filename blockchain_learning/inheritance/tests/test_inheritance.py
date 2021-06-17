@@ -6,9 +6,6 @@ import unittest
 from brownie import Inheritance, accounts, reverts
 
 
-
-
-
 class TestInheritanceContract(unittest.TestCase):
 
     initial_balance = 100
@@ -28,7 +25,6 @@ class TestInheritanceContract(unittest.TestCase):
                 )
             return func(self)
         return wrapper
-
 
     @_deploy_without_funds
     def test_deploy_without_funds(self):
@@ -53,3 +49,11 @@ class TestInheritanceContract(unittest.TestCase):
         with reverts():
             self.inheritance_contract.setup(self.heirs[0], 101)
         assert self.inheritance_contract.balance() == self.initial_balance
+
+    def test_died(self):
+        balance = self.heirs[0].balance()
+        self.inheritance_contract.setup(self.heirs[0], self.initial_balance)
+        self.inheritance_contract.died()
+
+        assert self.inheritance_contract.balance() == 0
+        assert self.heirs[0].balance() == balance + self.initial_balance

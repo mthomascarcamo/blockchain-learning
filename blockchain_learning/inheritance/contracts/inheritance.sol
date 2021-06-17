@@ -28,7 +28,7 @@ contract Inheritance {
     mapping (address => uint) inheritance;
 
     function setup(address _wallet, uint _inheritance) public oneOwner {
-        require (money > _inheritance, "not gonna work");
+        require (money >= _inheritance, "not gonna work");
         money -= _inheritance;
         wallets.push(_wallet);
         inheritance[_wallet] = _inheritance;
