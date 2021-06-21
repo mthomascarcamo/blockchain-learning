@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yossigruner/uniswapv3_liquidity.git"
+    "url": "git+https://github.com/mthomascarcamo/blockchain-learning"
   },
   "author": "",
   "license": "ISC",
@@ -27,7 +27,7 @@
     "mathjs": "^9.3.2"
   },
   "bugs": {
-    "url": "https://github.com/yossigruner/uniswapv3_liquidity/issues"
+    "url": "https://github.com/mthomascarcamo/blockchain-learning/issues"
   },
-  "homepage": "https://github.com/yossigruner/uniswapv3_liquidity#readme"
+  "homepage": "https://github.com/mthomascarcamo/blockchain-learning#readme"
 }
