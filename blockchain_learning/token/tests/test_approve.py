@@ -1,24 +1,34 @@
 #!/usr/bin/python3
-
+import unittest
 import pytest
+from brownie import Token, accounts
 
 
-@pytest.mark.parametrize("idx", range(5))
-def test_initial_approval_is_zero(token, accounts, idx):
-    assert token.allowance(accounts[0], accounts[idx]) == 0
+class TestToken(unittest.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.accounts = accounts
+        self.token = Token.deploy("Test Token", "TST", 18, 1e21, {'from': self.accounts[0]})
+
+    def test_approve(self):
+        self.token.approve(self.accounts[1], 10**19, {'from': self.accounts[0]})
+        assert self.token.allowance(self.accounts[0], self.accounts[1]) == 10**19
+
+    def test_initial_approval_is_zero(self):
+        for idx in range(5):
+            assert self.token.allowance(self.accounts[0], self.accounts[idx]) == 0
+
+    def test_approve(self):
+        self.token.approve(self.accounts[1], 10**19, {'from': self.accounts[0]})
+        assert self.token.allowance(self.accounts[0], self.accounts[1]) == 10**19
 
 
-def test_approve(token, accounts):
-    token.approve(accounts[1], 10**19, {'from': accounts[0]})
+    def test_modify_approve(self):
+        self.token.approve(self.accounts[1], 10**19, {'from': self.accounts[0]})
+        self.token.approve(self.accounts[1], 12345678, {'from': self.accounts[0]})
 
-    assert token.allowance(accounts[0], accounts[1]) == 10**19
-
-
-def test_modify_approve(token, accounts):
-    token.approve(accounts[1], 10**19, {'from': accounts[0]})
-    token.approve(accounts[1], 12345678, {'from': accounts[0]})
-
-    assert token.allowance(accounts[0], accounts[1]) == 12345678
+        assert self.token.allowance(self.accounts[0], self.accounts[1]) == 12345678
 
 
 def test_revoke_approve(token, accounts):

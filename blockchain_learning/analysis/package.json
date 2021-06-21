@@ -1,0 +1,33 @@
+{
+  "name": "uniswapv3_liquidity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "liquidity.js",
+  "scripts": {
+    "start": "node liquidity.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yossigruner/uniswapv3_liquidity.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@uniswap/sdk-core": "^2.0.2",
+    "@uniswap/v3-sdk": "^2.0.1",
+    "apollo-boost": "^0.4.9",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link-http": "^1.5.17",
+    "cross-fetch": "^3.1.4",
+    "graphql": "^15.5.0",
+    "graphql-tag": "^2.12.4",
+    "lodash": "^4.17.21",
+    "mathjs": "^9.3.2"
+  },
+  "bugs": {
+    "url": "https://github.com/yossigruner/uniswapv3_liquidity/issues"
+  },
+  "homepage": "https://github.com/yossigruner/uniswapv3_liquidity#readme"
+}

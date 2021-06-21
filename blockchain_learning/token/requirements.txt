@@ -1,1 +1,5 @@
+js2py
 eth-brownie>=1.10.0,<2.0.0
+git@github.com:makerdao/pyexchange.git
+git@github.com:makerdao/pymaker.git
+git@github.com:PiotrDabkowski/Js2Py.git
